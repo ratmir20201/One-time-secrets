@@ -3,7 +3,7 @@ import uuid
 from fastapi import Request, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.status import HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN
+from starlette.status import HTTP_403_FORBIDDEN
 
 from api.encryption import decrypt_secret
 from api.uitls import check_secret_is_alive
@@ -46,8 +46,15 @@ async def create_secret(
     return secret_key
 
 
-async def get_secret(
-    secret_key: str,
+async def get_secret(secret_key: str, session: AsyncSession):
+    """Функция для получения секрета."""
+    secret_query = await session.execute(select(Secret).where(Secret.key == secret_key))
+    secret = secret_query.scalar_one_or_none()
+    return secret
+
+
+async def check_secret_and_make_logs(
+    secret: Secret,
     request: Request,
     session: AsyncSession,
 ) -> Secret.secret:
@@ -58,32 +65,34 @@ async def get_secret(
     Также создаем объект SecretLog для логирования.
     Отправляем расшифрованный секрет (конфиденциальные данные).
     """
-    secret_query = await session.execute(select(Secret).where(Secret.key == secret_key))
-    secret = secret_query.scalar_one_or_none()
-
-    if not secret:
-        raise HTTPException(
-            status_code=HTTP_404_NOT_FOUND,
-            detail="Данный секрет не найден.",
-        )
-
     if secret.was_read:
         raise HTTPException(
             status_code=HTTP_403_FORBIDDEN,
             detail="Данный секрет уже был прочитан ранее.",
         )
 
+    secret.was_read = True
+
     await check_secret_is_alive(secret)
 
     new_secret_log = SecretLog(
         ip_address=request.client.host,
         action="read",
-        secret_key=secret_key,
+        secret_key=secret.key,
     )
 
     session.add(new_secret_log)
+    session.add(secret)
     await session.commit()
 
     decrypted_secret = decrypt_secret(secret.secret)
 
     return decrypted_secret
+
+
+async def delete_secret(
+    secret: Secret,
+    request: Request,
+    session: AsyncSession,
+) -> str:
+    pass

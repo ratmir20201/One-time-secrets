@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from crud import create_secret, get_secret
+from crud import create_secret, delete_secret, check_secret_and_make_logs
 from db import get_session
-from schemas import SecretCreateRequest, SecretCreateResponse, SecretReadResponse
+from dependencies import secret_by_secret_key
+from models import Secret
+from schemas import (
+    SecretCreateRequest,
+    SecretCreateResponse,
+    SecretReadResponse,
+    SecretDeleteResponse,
+)
 
 router = APIRouter(prefix="/api")
 
@@ -24,13 +31,27 @@ async def create_new_secret(
 
 @router.get("/secret/{secret_key}", response_model=SecretReadResponse)
 async def get_secret_by_secret_key(
-    secret_key: str,
     request: Request,
+    secret: Secret = Depends(secret_by_secret_key),
     session: AsyncSession = Depends(get_session),
 ):
-    secret = await get_secret(
-        secret_key=secret_key,
+    decrypt_secret = await check_secret_and_make_logs(
+        secret=secret,
         request=request,
         session=session,
     )
-    return {"secret": secret}
+    return {"secret": decrypt_secret}
+
+
+@router.delete("/secret/{secret_key}", response_model=SecretDeleteResponse)
+async def delete_secret_by_secret_key(
+    request: Request,
+    secret: Secret = Depends(secret_by_secret_key),
+    session: AsyncSession = Depends(get_session),
+):
+    status = await delete_secret(
+        secret=secret,
+        request=request,
+        session=session,
+    )
+    return {"status": status}
