@@ -5,6 +5,7 @@ from starlette.status import HTTP_404_NOT_FOUND
 from crud import get_secret
 from db import get_session
 from models import Secret
+from uitls import check_secret_is_alive
 
 
 async def secret_by_secret_key(
@@ -13,6 +14,9 @@ async def secret_by_secret_key(
 ) -> Secret:
     """Зависимость для получения привычки по ее id."""
     secret = await get_secret(secret_key=secret_key, session=session)
+
+    await check_secret_is_alive(secret)
+
     if secret is not None:
         return secret
 

@@ -6,10 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_403_FORBIDDEN
 
 from api.encryption import decrypt_secret
-from api.uitls import check_secret_is_alive
 from encryption import encrypt_secret
 from models import Secret, SecretLog
-from schemas import SecretCreateRequest
+from schemas import SecretCreateRequest, SecretDeleteRequest
 
 
 async def create_secret(
@@ -59,7 +58,7 @@ async def check_secret_and_make_logs(
     session: AsyncSession,
 ) -> Secret.secret:
     """
-    Метод для получения объета Secret по его key.
+    Метод для получения объекта Secret по его key.
 
     Проверяем существует ли такой секрет, и не был ли он еще прочитан.
     Также создаем объект SecretLog для логирования.
@@ -72,8 +71,6 @@ async def check_secret_and_make_logs(
         )
 
     secret.was_read = True
-
-    await check_secret_is_alive(secret)
 
     new_secret_log = SecretLog(
         ip_address=request.client.host,
@@ -92,7 +89,25 @@ async def check_secret_and_make_logs(
 
 async def delete_secret(
     secret: Secret,
+    delete_data: SecretDeleteRequest,
     request: Request,
     session: AsyncSession,
 ) -> str:
-    pass
+    if secret.passphrase and secret.passphrase != delete_data.passphrase:
+        raise HTTPException(
+            status_code=403,
+            detail="Неверная фраза-пароль.",
+        )
+
+    await session.delete(secret)
+
+    new_secret_log = SecretLog(
+        ip_address=request.client.host,
+        action="delete",
+        secret_key=secret.key,
+    )
+
+    session.add(new_secret_log)
+    await session.commit()
+
+    return "secret_deleted"

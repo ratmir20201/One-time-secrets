@@ -17,3 +17,7 @@ class SecretReadResponse(BaseModel):
 
 class SecretDeleteResponse(BaseModel):
     status: str
+
+
+class SecretDeleteRequest(BaseModel):
+    passphrase: str | None = None
