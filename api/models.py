@@ -32,5 +32,8 @@ class SecretLog(Base):
     ip_address: Mapped[str]
     action: Mapped[str]
     secret_key: Mapped[str] = mapped_column(ForeignKey("secrets.key"))
+    timestamp: Mapped[datetime.datetime] = mapped_column(
+        server_default=text("TIMEZONE('utc', now())")
+    )
 
     secret = relationship("Secret", back_populates="logs")
