@@ -25,7 +25,7 @@ class DbSettings(BaseSettings):
         )
 
     class Config:
-        env_prefix = "DB__"
+        env_prefix = "POSTGRES__"
 
 
 class CryptoSettings(BaseSettings):

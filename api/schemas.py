@@ -9,3 +9,6 @@ class SecretCreateRequest(BaseModel):
 
 class SecretCreateResponse(BaseModel):
     secret_key: str
+
+class SecretReadResponse(BaseModel):
+    secret: str

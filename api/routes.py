@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from crud import create_secret, get_secret
 from db import get_session
-from schemas import SecretCreateRequest, SecretCreateResponse
+from schemas import SecretCreateRequest, SecretCreateResponse, SecretReadResponse
 
 router = APIRouter(prefix="/api")
 
@@ -22,8 +22,8 @@ async def create_new_secret(
     return {"secret_key": key}
 
 
-@router.post("/secret/{secret_key}", response_model=SecretCreateResponse)
-async def create_new_secret(
+@router.get("/secret/{secret_key}", response_model=SecretReadResponse)
+async def get_secret_by_secret_key(
     secret_key: str,
     request: Request,
     session: AsyncSession = Depends(get_session),
