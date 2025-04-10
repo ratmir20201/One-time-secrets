@@ -1,9 +1,11 @@
 import datetime
 
 from sqlalchemy import text, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 
-from db import Base
+
+class Base(DeclarativeBase):
+    """Базовый класс для таблиц."""
 
 
 class Secret(Base):

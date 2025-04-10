@@ -23,6 +23,7 @@ dependencies = [
 wemake-python-styleguide = "^1.1.0"
 mypy = "^1.15.0"
 black = "^25.1.0"
+alembic = "^1.15.2"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

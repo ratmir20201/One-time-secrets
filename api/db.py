@@ -1,11 +1,9 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from config import settings
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
 
 DATABASE_URL = settings.db.db_url
 engine = create_async_engine(DATABASE_URL, echo=settings.db.echo)
@@ -17,9 +15,6 @@ _Session = async_sessionmaker(
     class_=AsyncSession,
     expire_on_commit=False,
 )
-
-class Base(DeclarativeBase):
-    """Базовый класс для таблиц."""
 
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
