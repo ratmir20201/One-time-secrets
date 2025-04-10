@@ -3,6 +3,7 @@ from fastapi import FastAPI
 
 from api.routes import router
 from db import engine, Base
+from middlewares import NoCacheMiddleware
 
 
 async def lifespan(app: FastAPI):
@@ -18,6 +19,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(router)
+
+app.add_middleware(NoCacheMiddleware)
 
 
 if __name__ == "__main__":
