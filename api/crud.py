@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_403_FORBIDDEN
 
-from api.encryption import decrypt_secret
+from encryption import decrypt_secret
 from encryption import encrypt_secret
 from models import Secret, SecretLog
 from schemas import SecretCreateRequest, SecretDeleteRequest
