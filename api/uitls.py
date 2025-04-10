@@ -1,4 +1,5 @@
 import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import HTTPException
 from starlette.status import HTTP_410_GONE
@@ -10,7 +11,8 @@ async def check_secret_is_alive(secret: Secret) -> None:
     """Функция для проверки срока жизни секрета."""
 
     current_time = datetime.datetime.now(datetime.UTC)
-    expiration_time = secret.created_at + datetime.timedelta(seconds=secret.ttl_seconds)
+    created_at = secret.created_at.replace(tzinfo=ZoneInfo("UTC"))
+    expiration_time = created_at + datetime.timedelta(seconds=secret.ttl_seconds)
 
     if current_time > expiration_time:
         raise HTTPException(

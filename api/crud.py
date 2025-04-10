@@ -45,7 +45,7 @@ async def create_secret(
     return secret_key
 
 
-async def get_secret(secret_key: str, session: AsyncSession):
+async def get_secret(secret_key: str, session: AsyncSession) -> Secret | None:
     """Функция для получения секрета."""
     secret_query = await session.execute(select(Secret).where(Secret.key == secret_key))
     secret = secret_query.scalar_one_or_none()

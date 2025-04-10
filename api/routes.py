@@ -13,7 +13,7 @@ from schemas import (
     SecretDeleteRequest,
 )
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", tags=["Secrets"])
 
 
 @router.post("/secret", response_model=SecretCreateResponse)

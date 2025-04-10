@@ -15,9 +15,8 @@ async def secret_by_secret_key(
     """Зависимость для получения привычки по ее id."""
     secret = await get_secret(secret_key=secret_key, session=session)
 
-    await check_secret_is_alive(secret)
-
     if secret is not None:
+        await check_secret_is_alive(secret)
         return secret
 
     raise HTTPException(

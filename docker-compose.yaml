@@ -4,16 +4,16 @@ services:
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${DB__NAME}
-      POSTGRES_USER: ${DB__USER}
-      POSTGRES_PASSWORD: ${DB__PASSWORD}
+      POSTGRES_DB: ${POSTGRES__NAME}
+      POSTGRES_USER: ${POSTGRES__USER}
+      POSTGRES_PASSWORD: ${POSTGRES__PASSWORD}
       log_destination: stderr
       logging_collector: on
       log_directory: /var/lib/postgresql/data/log
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d ${DB__NAME} -U ${DB__USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES__NAME} -U ${POSTGRES__USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
     ports:
-      - "${DB__PORT}:${DB__PORT}"
+      - "${POSTGRES__PORT}:${POSTGRES__PORT}"
